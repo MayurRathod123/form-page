@@ -1,7 +1,7 @@
-import React, { useReducer } from 'react'
+import React, { useReducer,useState } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
-// import NoHotelForm from './NoHotelForm';
+import moment from 'moment';
 
 
 const Form = (props) => {
@@ -21,11 +21,15 @@ const Form = (props) => {
         serviceChargePerCouple: '',
         serviceChargePerAdult: '',
         serviceChargePerChild: '',
+        numberOfPerson:'',
     };
-    console.log(props);
+    const isVisible = props.isVisible;
+    const [dates, setDates] = useState();
+
     const [nameState, dispatch] = useReducer((state, action) => {
         switch (action.type) {
             case 'checkInDate':
+                setDates(action.value);
                 return {
                     ...state,
                     checkInDate: action.value,
@@ -34,6 +38,7 @@ const Form = (props) => {
                 return {
                     ...state,
                     numberOfNight: action.value,
+                    checkOutDate : moment(dates).add(action.value, 'd').format('YYYY-MM-DD')
                 }
             case 'checkOutDate':
                 return {
@@ -100,6 +105,11 @@ const Form = (props) => {
                     ...state,
                     serviceChargePerChild: action.value,
                 }
+            case 'numberOfPerson':
+                    return {
+                        ...state,
+                        numberOfPerson: action.value,
+                    }    
 
             case 'SUBMIT':
                 return {
@@ -116,9 +126,8 @@ const Form = (props) => {
             value: event.target.value,
         });
     };
-
     const submitHandler = (event) => {
-        console.log(nameState)
+        // console.log(nameState)
         event.preventDefault();
         axios.post('https://kashishholidays.in/formula_v2/form_data.php', { nameState })
             .then(res => {
@@ -135,7 +144,7 @@ const Form = (props) => {
         <>
 
             <form onSubmit={submitHandler}>
-                <div className='flex justify-between'>
+                  <div className='flex justify-between'>
 
                     <label htmlFor='date'>Checkin Date:</label>
                     <input
@@ -146,16 +155,26 @@ const Form = (props) => {
                     />
                 </div>
 
-                <div className="mt-7 flex justify-between ">
+                {isVisible ? <div className="mt-7 flex justify-between ">
                     <label htmlFor='text'>Number Of Night:</label>
                     <input
-                        type="text"
+                        type="number"
                         value={nameState.numberOfNight}
                         onChange={(event) => { changeHandler(event, 'numberOfNight') }}
                         className="border-2 p-1 rounded-md ml-2"
                     />
-                </div>
-                <div className="mt-7 flex justify-between">
+                </div> : ''}
+
+                {isVisible ? '' : <div className="mt-7 flex justify-between ">
+                    <label htmlFor='text'>Number Of Person:</label>
+                    <input
+                        type="number"
+                        value={nameState.numberOfPerson}
+                        onChange={(event) => { changeHandler(event, 'numberOfPerson') }}
+                        className="border-2 p-1 rounded-md ml-2"
+                    />
+                </div>}
+                {isVisible ?  <div className="mt-7 flex justify-between">
                     <label htmlFor='date'>Checkout Date:</label>
                     <input
                         type="date"
@@ -163,17 +182,17 @@ const Form = (props) => {
                         onChange={(event) => changeHandler(event, 'checkOutDate')}
                         className="border-2 p-1 rounded-md ml-2"
                     />
-                </div>
-                <div className="mt-7 flex justify-between">
+                </div> : '' }
+                {isVisible ?  <div className="mt-7 flex justify-between">
                     <label htmlFor='text'>Number of Couple:</label>
                     <input
-                        type="text"
+                        type="number"
                         value={nameState.numberOfCouple}
                         onChange={(event) => changeHandler(event, 'numberOfCouple')}
                         className="border-2 p-1 rounded-md ml-2"
                     />
-                </div>
-                <div className="mt-7 flex justify-between">
+                </div> : '' }
+                {isVisible ?  <div className="mt-7 flex justify-between">
                     <label htmlFor='text'>Meal Plan:</label>
                     <select className="border-2 p-1 rounded-md ml-2"
                         value={nameState.mealPlan}
@@ -183,8 +202,8 @@ const Form = (props) => {
                         <option>MAP</option>
                         <option>AP</option>
                     </select>
-                </div>
-                <div className="mt-7 flex justify-between" >
+                </div> : '' }
+                {isVisible ?  <div className="mt-7 flex justify-between" >
                     <label htmlFor='text'>Extra adult with mattress:</label>
                     <input
                         type="text"
@@ -192,8 +211,8 @@ const Form = (props) => {
                         onChange={(event) => changeHandler(event, 'extraAdultWithMattress')}
                         className="border-2 p-1 rounded-md ml-2"
                     />
-                </div>
-                <div className="mt-7 flex justify-between" >
+                </div> : '' }
+                {isVisible ?  <div className="mt-7 flex justify-between" >
                     <label htmlFor='text'>Extra child without mattress:
                     </label>
                     <input
@@ -202,7 +221,7 @@ const Form = (props) => {
                         onChange={(event) => changeHandler(event, 'extraChildWithoutMattress')}
                         className="border-2 p-1 rounded-md ml-2"
                     />
-                </div>
+                </div> : '' }
                 <div className="mt-7 flex justify-between" >
                     <label htmlFor='text'>Vehicle:</label>
                     <select className="border-2 p-1 rounded-md ml-2"
@@ -271,7 +290,7 @@ const Form = (props) => {
                 <div className="mt-7 flex justify-between" >
                     <label htmlFor='text'>Service charge per couple:</label>
                     <input
-                        type="text"
+                        type="number"
                         value={nameState.serviceChargePerCouple}
                         onChange={(event) => changeHandler(event, 'serviceChargePerCouple')}
                         className="border-2 p-1 rounded-md ml-2"
@@ -280,7 +299,7 @@ const Form = (props) => {
                 <div className="mt-7 flex justify-between" >
                     <label htmlFor='text'>Service charge per adult:</label>
                     <input
-                        type="text"
+                        type="number"
                         value={nameState.serviceChargePerAdult}
                         onChange={(event) => changeHandler(event, 'serviceChargePerAdult')}
                         className="border-2 p-1 rounded-md ml-2"
@@ -289,17 +308,20 @@ const Form = (props) => {
                 <div className="mt-7 flex justify-between" >
                     <label htmlFor='text'>Service charge per child:</label>
                     <input
-                        type="text"
+                        type="number"
                         value={nameState.serviceChargePerChild}
                         onChange={(event) => changeHandler(event, 'serviceChargePerChild')}
                         className="border-2 p-1 rounded-md ml-2"
                     />
                 </div>
+                <div className="m-auto">
                 <div className="mt-7">
                     <button disabled={!nameState} type="Submit" className="bg-emerald-500 border-2 rounded-full font-bold p-2 px-5 mt-60 text-white">
-                        <Link to="data">Submit</Link>
+                        <Link to="/data">Submit</Link>
                     </button>
                 </div>
+                </div>
+                
             </form>
 
         </>

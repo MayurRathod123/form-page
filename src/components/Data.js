@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 
 const Data = () => {
   return (
@@ -8,13 +9,15 @@ const Data = () => {
           Greetings<br />
           AS per your requirements find rates as below...
         </div>
-        
-        <button type="Submit" className="bg-emerald-500 border-2 rounded-full font-bold p-2 px-5 mt-60 text-white">
-          New Form
-        </button>
-  
       </div>
-      
+      <div className='flex justify-center'>
+        <button type="Submit" className="bg-emerald-500 border-2 rounded-full font-bold p-2 px-5 text-white">
+          <Link to="/">New Form</Link>
+        </button>
+        <button type="Submit" className="bg-emerald-500 border-2 rounded-full font-bold p-2 px-5 text-white">
+          Copy to Clipboard
+        </button>
+      </div>
     </>
   )
 }

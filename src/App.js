@@ -9,19 +9,19 @@ const baseURL = "http://holidaypackages.exploreindiataxi.com/publicGetallState.p
 
 function App() {
   const [currentState, setCurrentState] = useState();
-   
+  const [isVisible, setFormVisibility] = useState(true);
   const [stateId, setStateId] = useState();
 
 
     const handleChangeState = (event) => {
-      console.log(event.target.value,"mmmmm")
+      // console.log(event.target.value,"mmmmm")
       setStateId(event.target.value)
     }
 
-    console.log(stateId,"nnnnn")
+    // console.log(stateId,"nnnnn")
   useEffect(() => {
     axios.get(baseURL).then((response) => {
-      console.log(response.data)
+      // console.log(response.data)
       setCurrentState(response.data.data);
     });
   }, []);
@@ -30,16 +30,16 @@ function App() {
     <>
     <div className="lg:bg-emerald-500 pb-2 sm:bg-green-500 text-white h-24 lg:w-full sm:w-full flex">
     <select className="font-semibold border-2 p-2 rounded-md ml-48 mt-10 bg-emerald-500 text-white text-2xl" onChange={handleChangeState}>
-    {currentState.map((element) => <option value={element.id} >{element.state}</option>)}
+    {currentState.map((element,index) => <option key={index} value={element.id} >{element.state}</option>)}
     </select>
     </div>
       <div className="h-full w-full mb-14 grid justify-items-center">
         <div className="border-2 mt-14 rounded-3xl shadow-lg p-10 overflow-hidden grid lg:grid-cols-2 sm:grid-cols-1">
           <div className='pr-10'>
-            <Form />
+            <Form isVisible={isVisible} />
           </div>
           <div>
-          <Hotels stateId={stateId}/>
+          <Hotels stateId={stateId} setFormVisibility={setFormVisibility}/>
           </div>
         </div>
       </div>
