@@ -11,28 +11,58 @@ const Hotels = (props) => {
     const [hotels, setHotels] = useState({ threeStar: [], fourStar: [], fiveStar: [] });
 
     const handleCheckedChange = (event) => {
-        // console.log(event, 'evwent')
         if(event.target.type === 'all-hotel'){
+            hotels.threeStar.forEach((element) => {
+                element.checked = event.target.value;
+            });
+            hotels.fourStar.forEach((element) => {
+                element.checked = event.target.value;
+            });
+            hotels.fiveStar.forEach((element) => {
+                element.checked = event.target.value;
+            });
             if (event.target.value) {
                 setIsChecked(true);
+                setThreeStarChecked(false);
+                setFourStarChecked(false);
+                setUpgradedChecked(false);
             } else {
                 setIsChecked(false);
             }
         } else if(event.target.type === 'three-star'){
+            hotels.threeStar.forEach((element) => {
+                element.checked = event.target.value;
+            });
             if (event.target.value) {
                 setThreeStarChecked(true);
+                setIsChecked(false);
+                setFourStarChecked(false);
+                setUpgradedChecked(false);
             } else {
                 setThreeStarChecked(false);
             }
         }  else if(event.target.type === 'four-star'){
+            hotels.fourStar.forEach((element) => {
+                element.checked = event.target.value;
+            });
             if (event.target.value) {
                 setFourStarChecked(true);
+                setIsChecked(false);
+                setThreeStarChecked(false);
+                setUpgradedChecked(false);
             } else {
                 setFourStarChecked(false);
             }
         }  else if(event.target.type === 'upgraded-hotel'){
+            hotels.fiveStar.forEach((element) => {
+                element.checked = event.target.value;
+            });
             if (event.target.value) {
                 setUpgradedChecked(true);
+                setIsChecked(false);
+                setThreeStarChecked(false);
+                setFourStarChecked(false);
+                props.addHotels(hotels.fiveStar);
             } else {
                 setUpgradedChecked(false);
             }
@@ -42,20 +72,49 @@ const Hotels = (props) => {
     
 
     const handleSingleCheckedChange = (event) => {
-    // console.log(props.setFormVisibility(true))
+        if (event.target.element.star === '5') {
+            hotels.fiveStar.forEach((element) => {
+                    if (element.id === event.target.element.id) {
+                        element.checked = event.target.value;
+                    }
+            })
+        } else if (event.target.element.star === '3') {
+            hotels.threeStar.forEach((element) => {
+                if (element.id === event.target.element.id) {
+                    element.checked = event.target.value;
+                }
+                
+        })
+        } else if (event.target.element.star === '4') {
+            hotels.fourStar.forEach((element) => {
+                if (element.id === event.target.element.id) {
+                    element.checked = event.target.value;
+                }
+        })
+        }
+        setHotels({ threeStar: hotels.threeStar, fiveStar: hotels.fiveStar, fourStar: hotels.fourStar });
     }
 
     const handleNoHotelCheckedChange = (event) => {
         if (event.target.value) {
+            setUpgradedChecked(false);
+            setIsChecked(false);
+            setThreeStarChecked(false);
+            setFourStarChecked(false);
             props.setFormVisibility(false);
         } else  {
             props.setFormVisibility(true)
         }
-       
         }
 
-
-    // console.log(props, "props called")
+    function saveHotel(e) { 
+        e.preventDefault();
+        let arr = [];
+        arr =  arr.concat(hotels.fiveStar.filter(element => element.checked));
+        arr =  arr.concat(hotels.fourStar.filter(element => element.checked));
+        arr =  arr.concat(hotels.threeStar.filter(element => element.checked));
+        props.addHotels(arr);
+    }
     const id = props.stateId
     useEffect(() => {
         // console.log('use called')
@@ -66,21 +125,22 @@ const Hotels = (props) => {
             const fiveStar = [];
             if(response.data && response.data.data && response.data.data.length > 0){
                 response.data.data.map((element) => {
-    
                     if (element.star === "5") {
+                         element.checked = false;
                         fiveStar.push(element);
                     } else if (element.star === '3') {
+                        element.checked = false;
                         threeStar.push(element);
                     } else if (element.star === '4') {
+                        element.checked = false;
                         fourStar.push(element);
                     }
                     return true;
                 })
             }
-            // console.log(threeStar, fourStar, fiveStar);
             setHotels({ threeStar: threeStar, fiveStar: fiveStar, fourStar: fourStar });
         });
-    }, [props.stateId]);
+    }, [id]);
     if (!hotels) return null;
 
 
@@ -161,6 +221,9 @@ const Hotels = (props) => {
                             }}
                         />
                         <label className="mr-2">No Hotel/Pickup,Drop</label>
+                        <button onClick={(e) => saveHotel(e)}>
+                            Add
+                        </button>
                     </div>
                 </form>
                 <div className="grid">
@@ -177,10 +240,11 @@ const Hotels = (props) => {
                                                           target: {
                                                             name: e.target.name,
                                                             value: e.target.checked,
+                                                            element: element,
                                                           },
                                                         });
                                                     }}
-                                                checked={isAllHotelChecked || isThreeStarHotelChecked}
+                                                checked={element.checked}
                                             />
                                         </td>
                                         <td className="border-y">{element.hotel_name}</td>
@@ -198,15 +262,16 @@ const Hotels = (props) => {
                                     <tr key={index} className=" hover:bg-gray-400 cursor-pointer duration-300">
                                         <td className="border-x border-y p-3">
                                             <input type="Checkbox"
+                                             checked={element.checked}
                                                       onChange={(e) => {
                                                         handleSingleCheckedChange({
                                                           target: {
                                                             name: e.target.name,
                                                             value: e.target.checked,
+                                                            element: element,
                                                           },
                                                         });
                                                     }}
-                                                checked={isAllHotelChecked || isFourStarHotelChecked}
                                             />
                                         </td>
                                         <td className="border-y">{element.hotel_name}</td>
@@ -223,8 +288,16 @@ const Hotels = (props) => {
                                     <tr key={index} className=" hover:bg-gray-400 cursor-pointer duration-300">
                                         <td className="border-x border-y p-3">
                                             <input type="Checkbox"
-                                                onChange={handleSingleCheckedChange}
-                                                checked={isAllHotelChecked || isUpgradedHotelChecked}
+                                            checked={element.checked}
+                                                      onChange={(e) => {
+                                                        handleSingleCheckedChange({
+                                                          target: {
+                                                            name: e.target.name,
+                                                            value: e.target.checked,
+                                                            element: element,
+                                                          },
+                                                        });
+                                                    }}
                                             />
                                         </td>
                                         <td className="border-y">{element.hotel_name}</td>

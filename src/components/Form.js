@@ -24,6 +24,8 @@ const Form = (props) => {
         numberOfPerson:'',
     };
     const isVisible = props.isVisible;
+    const Hotels  = props.selectedHotels;
+    // console.log(Hotels);
     const [dates, setDates] = useState();
 
     const [nameState, dispatch] = useReducer((state, action) => {
@@ -127,12 +129,12 @@ const Form = (props) => {
         });
     };
     const submitHandler = (event) => {
-        // console.log(nameState)
+        // console.log(nameState, 'inside the form')
         event.preventDefault();
         axios.post('https://kashishholidays.in/formula_v2/form_data.php', { nameState })
             .then(res => {
-                console.log(res);
-                console.log(res.data);
+                // console.log(res);
+                // console.log(res.data);
             })
 
         dispatch({
@@ -317,7 +319,7 @@ const Form = (props) => {
                 <div className="m-auto">
                 <div className="mt-7">
                     <button disabled={!nameState} type="Submit" className="bg-emerald-500 border-2 rounded-full font-bold p-2 px-5 mt-60 text-white">
-                        <Link to="/data">Submit</Link>
+                        <Link to="/data" state={Hotels}>Submit</Link>
                     </button>
                 </div>
                 </div>
