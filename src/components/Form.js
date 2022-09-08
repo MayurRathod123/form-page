@@ -1,8 +1,9 @@
-import React, { useReducer,useState } from 'react'
+import React, { useEffect, useReducer,useState } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
+const baseURL = "http://holidaypackages.exploreindiataxi.com/publicGetallCar.php";
 
 const Form = (props) => {
     const initialState = {
@@ -16,17 +17,26 @@ const Form = (props) => {
         vehicle: '',
         pickUpFrom: '',
         dropTo: '',
-        southGoaTour: '',
-        northGoaTour: '',
+        tourPackage: '',
         serviceChargePerCouple: '',
         serviceChargePerAdult: '',
         serviceChargePerChild: '',
         numberOfPerson:'',
     };
     const isVisible = props.isVisible;
-    const Hotels  = props.selectedHotels;
+  
     // console.log(Hotels);
     const [dates, setDates] = useState();
+    const [car, setCar] = useState();
+    const [carDetails, setCarDetails] = useState();
+
+    // useEffect(() => {
+    //     axios.get(baseURL).then((response) => {
+    //     console.log(response.data, "###################")
+    //     setCar(response.data.data);
+    //   });
+    // }, []);
+    // if(!car) return null;
 
     const [nameState, dispatch] = useReducer((state, action) => {
         switch (action.type) {
@@ -68,6 +78,12 @@ const Form = (props) => {
                     extraChildWithoutMattress: action.value,
                 }
             case 'vehicle':
+                console.log(action.value)
+                car.forEach(element => {
+                    if (+element.id === +action.value) {
+                        setCarDetails(element);
+                    }
+                });
                 return {
                     ...state,
                     vehicle: action.value,
@@ -82,15 +98,10 @@ const Form = (props) => {
                     ...state,
                     dropTo: action.value,
                 }
-            case 'southGoaTour':
+            case 'tourPackage':
                 return {
                     ...state,
-                    southGoaTour: action.value,
-                }
-            case 'northGoaTour':
-                return {
-                    ...state,
-                    northGoaTour: action.value,
+                    tourPackage: action.value,
                 }
             case 'serviceChargePerCouple':
                 return {
@@ -122,6 +133,7 @@ const Form = (props) => {
         }
 
     }, initialState)
+    const priceCalculationData  =  {Hotels:  props.selectedHotels, formData: nameState, carData: carDetails};
     const changeHandler = (event, type) => {
         dispatch({
             type,
@@ -129,18 +141,17 @@ const Form = (props) => {
         });
     };
     const submitHandler = (event) => {
-        // console.log(nameState, 'inside the form')
         event.preventDefault();
-        axios.post('https://kashishholidays.in/formula_v2/form_data.php', { nameState })
-            .then(res => {
-                // console.log(res);
-                // console.log(res.data);
-            })
-
         dispatch({
             type: 'SUBMIT'
         })
     };
+    useEffect(() => {
+        axios.get(baseURL).then((response) => {
+            setCar(response.data.data);
+          });
+    }, []);
+    if(!car) return null;
 
     return (
         <>
@@ -183,6 +194,7 @@ const Form = (props) => {
                         value={nameState.checkOutDate}
                         onChange={(event) => changeHandler(event, 'checkOutDate')}
                         className="border-2 p-1 rounded-md ml-2"
+                        disabled
                     />
                 </div> : '' }
                 {isVisible ?  <div className="mt-7 flex justify-between">
@@ -229,16 +241,7 @@ const Form = (props) => {
                     <select className="border-2 p-1 rounded-md ml-2"
                         value={nameState.vehicle}
                         onChange={(event) => changeHandler(event, 'vehicle')}>
-                        <option>Select Vehicle</option>
-                        <option>Small Car (upto 3 pax)</option>
-                        <option>Innova (upto 7 flex justify-between  pax)</option>
-                        <option>Winger 10 - 12</option>
-                        <option>Ertiga (upto 5 pax)</option>
-                        <option>13 - 17 flex justify-between  seater</option>
-                        <option>18 - 20 seater</option>
-                        <option>25 - 27 flex justify-between  seater</option>
-                        <option>30 - 35 seater</option>
-                        <option>40 seater bus</option>
+                         {car.map((element,index) => <option key={index} value={element.id} >{element.name}</option>)}
                     </select>
                 </div>
                 <div className="mt-7 flex justify-between" >
@@ -247,13 +250,9 @@ const Form = (props) => {
                         value={nameState.pickUpFrom}
                         onChange={(event) => changeHandler(event, 'pickUpFrom')}>
                         <option>No</option>
-                        <option>Thivim Railway Station</option>
-                        <option>Karmali Railway Station</option>
-                        <option>Madgoan Railway Station</option>
+                        <option>Railway Station</option>
                         <option>Airport</option>
-                        <option>Mapusa Bus Stop</option>
-                        <option>Panjim Bus Stop</option>
-                        <option>Vasco Railway Station</option>
+                        <option>Bus Stop</option>
                     </select>
                 </div>
                 <div className="mt-7 flex justify-between" >
@@ -262,28 +261,16 @@ const Form = (props) => {
                         value={nameState.dropTo}
                         onChange={(event) => changeHandler(event, 'dropTo')}>
                         <option>No</option>
-                        <option>Thivim Railway Station</option>
-                        <option>Karmali Railway Station</option>
-                        <option>Madgoan Railway Station</option>
+                        <option>Railway Station</option>
                         <option>Airport</option>
-                        <option>Mapusa Bus Stop</option>
-                        <option>Panjim Bus Stop</option>
-                        <option>Vasco Railway Station</option>
+                        <option>Bus Stop</option>
                     </select>
                 </div>
                 <div className="mt-7 flex justify-between" >
-                    <label htmlFor='text'>South Goa tour:</label>
+                    <label htmlFor='text'>Tour Package:</label>
                     <select className="border-2 p-1 rounded-md ml-2"
-                        value={nameState.southGoaTour}
-                        onChange={(event) => changeHandler(event, 'southGoaTour')}>
-                        <option>No</option>
-                        <option>SIC</option>
-                        <option>PVT</option>
-                    </select>
-                    <label htmlFor='text' className="ml-5">North Goa tour:</label>
-                    <select className="border-2 p-1 rounded-md ml-2"
-                        value={nameState.northGoaTour}
-                        onChange={(event) => changeHandler(event, 'northGoaTour')}>
+                        value={nameState.tourPackage}
+                        onChange={(event) => changeHandler(event, 'tourPackage')}>
                         <option>No</option>
                         <option>SIC</option>
                         <option>PVT</option>
@@ -319,7 +306,7 @@ const Form = (props) => {
                 <div className="m-auto">
                 <div className="mt-7">
                     <button disabled={!nameState} type="Submit" className="bg-emerald-500 border-2 rounded-full font-bold p-2 px-5 mt-60 text-white">
-                        <Link to="/data" state={Hotels}>Submit</Link>
+                        <Link to="/data" state={priceCalculationData}>Submit</Link>
                     </button>
                 </div>
                 </div>

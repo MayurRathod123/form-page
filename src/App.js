@@ -19,8 +19,8 @@ function App() {
       setStateId(event.target.value)
     }
 
-  useEffect(() => {
-    axios.get(baseURL).then((response) => {
+    useEffect(() => {
+      axios.get(baseURL).then((response) => {
       // console.log(response.data)
       setCurrentState(response.data.data);
     });

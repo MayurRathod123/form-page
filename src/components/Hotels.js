@@ -7,6 +7,7 @@ const Hotels = (props) => {
     const [isThreeStarHotelChecked, setThreeStarChecked] = useState(false);
     const [isFourStarHotelChecked, setFourStarChecked] = useState(false);
     const [isUpgradedHotelChecked, setUpgradedChecked] = useState(false);
+    const [isNoHotelChecked, setNoHotelChecked] = useState(false);
 
     const [hotels, setHotels] = useState({ threeStar: [], fourStar: [], fiveStar: [] });
 
@@ -26,6 +27,8 @@ const Hotels = (props) => {
                 setThreeStarChecked(false);
                 setFourStarChecked(false);
                 setUpgradedChecked(false);
+                setNoHotelChecked(false);
+                props.setFormVisibility(true);
             } else {
                 setIsChecked(false);
             }
@@ -38,6 +41,14 @@ const Hotels = (props) => {
                 setIsChecked(false);
                 setFourStarChecked(false);
                 setUpgradedChecked(false);
+                setNoHotelChecked(false);
+                props.setFormVisibility(true);
+                hotels.fourStar.forEach((element) => {
+                    element.checked = false;
+                });
+                hotels.fiveStar.forEach((element) => {
+                    element.checked = false;
+                });
             } else {
                 setThreeStarChecked(false);
             }
@@ -50,10 +61,18 @@ const Hotels = (props) => {
                 setIsChecked(false);
                 setThreeStarChecked(false);
                 setUpgradedChecked(false);
+                setNoHotelChecked(false);
+                props.setFormVisibility(true);
+                hotels.threeStar.forEach((element) => {
+                    element.checked = false;
+                });
+                hotels.fiveStar.forEach((element) => {
+                    element.checked = false;
+                });
             } else {
                 setFourStarChecked(false);
             }
-        }  else if(event.target.type === 'upgraded-hotel'){
+        }  else if(event.target.type ==='upgraded-hotel'){
             hotels.fiveStar.forEach((element) => {
                 element.checked = event.target.value;
             });
@@ -62,6 +81,14 @@ const Hotels = (props) => {
                 setIsChecked(false);
                 setThreeStarChecked(false);
                 setFourStarChecked(false);
+                setNoHotelChecked(false);
+                props.setFormVisibility(true);
+                hotels.fourStar.forEach((element) => {
+                    element.checked = false;
+                });
+                hotels.threeStar.forEach((element) => {
+                    element.checked = false;
+                });
                 props.addHotels(hotels.fiveStar);
             } else {
                 setUpgradedChecked(false);
@@ -101,8 +128,19 @@ const Hotels = (props) => {
             setIsChecked(false);
             setThreeStarChecked(false);
             setFourStarChecked(false);
+            setNoHotelChecked(true);
+            hotels.fourStar.forEach((element) => {
+                element.checked = false;
+            });
+            hotels.fiveStar.forEach((element) => {
+                element.checked = false;
+            });
+            hotels.threeStar.forEach((element) => {
+                element.checked = false;
+            });
             props.setFormVisibility(false);
         } else  {
+            setNoHotelChecked(false);
             props.setFormVisibility(true)
         }
         }
@@ -118,7 +156,7 @@ const Hotels = (props) => {
     const id = props.stateId
     useEffect(() => {
         // console.log('use called')
-        axios.get(`${baseURL}?stateId=${id}`).then((response) => {
+        if(id){axios.get(`${baseURL}?stateId=${id}`).then((response) => {
             // console.log(response.data.data)
             const threeStar = [];
             const fourStar = [];
@@ -139,8 +177,8 @@ const Hotels = (props) => {
                 })
             }
             setHotels({ threeStar: threeStar, fiveStar: fiveStar, fourStar: fourStar });
-        });
-    }, [id]);
+        })};
+    }, [id]) ;
     if (!hotels) return null;
 
 
@@ -151,6 +189,7 @@ const Hotels = (props) => {
                     <div>
                         <input
                             type="Checkbox"
+                            required
                             checked={isAllHotelChecked}
                             className="mr-2"
                             onChange={(e) => {
@@ -211,6 +250,7 @@ const Hotels = (props) => {
                         <input
                             type="Checkbox"
                             className="mr-2"
+                            checked={isNoHotelChecked}
                             onChange={(e) => {
                                 handleNoHotelCheckedChange({
                                   target: {
@@ -221,14 +261,15 @@ const Hotels = (props) => {
                             }}
                         />
                         <label className="mr-2">No Hotel/Pickup,Drop</label>
-                        <button onClick={(e) => saveHotel(e)}>
+                        <button className='bg-emerald-500 border-2 rounded-full font-bold p-2 text-white' onClick={(e) => saveHotel(e)}>
                             Add
                         </button>
                     </div>
                 </form>
                 <div className="grid">
                     <div>
-                        <div className="text-center mt-5 mb-2">3 Star</div>
+                        <div className="text-center mt-5 mb-2 border rounded-lg bg-green-300 font-bold">3 Star</div>
+                        {/* <div className='h-60 overflow-y-auto'> */}
                         <table className=" font-[poppins] border w-full shadow-lg ">
                             <tbody className="text-center rounded-lg">
                                 {hotels.threeStar.map((element,index) => 
@@ -253,9 +294,11 @@ const Hotels = (props) => {
 
                             </tbody>
                         </table>
+                        {/* </div> */}
                     </div>
                     <div>
-                        <div className="text-center mt-5 mb-2">4 Star</div>
+                        <div className="text-center mt-5 mb-2 border rounded-lg bg-green-300 font-bold">4 Star</div>
+                        {/* <div className='h-60 overflow-y-auto '> */}
                         <table className=" font-[poppins] border w-full shadow-lg ">
                             <tbody className="text-center rounded-lg">
                                 {hotels.fourStar.map((element,index) =>
@@ -279,13 +322,15 @@ const Hotels = (props) => {
                                 )}
                             </tbody>
                         </table>
+                        {/* </div> */}
                     </div>
-                    <div>
-                        <div className='text-center mt-5 mb-2'>Upgraded Hotel</div>
-                        <table className=" font-[poppins] border w-full shadow-lg ">
+                    <div className=''>
+                        <div className='text-center mt-5 mb-2 border rounded-lg bg-green-300 font-bold'>Upgraded Hotel</div>
+                        <div className='h-60 overflow-y-auto border-b-0 '>
+                        <table className=" font-[poppins] border w-full shadow-lg">
                             <tbody className="text-center rounded-lg">
                                 {hotels.fiveStar.map((element,index) =>
-                                    <tr key={index} className=" hover:bg-gray-400 cursor-pointer duration-300">
+                                    <tr key={index} className=" hover:bg-gray-400 cursor-pointer duration-300 ">
                                         <td className="border-x border-y p-3">
                                             <input type="Checkbox"
                                             checked={element.checked}
@@ -305,6 +350,8 @@ const Hotels = (props) => {
                                 )}
                             </tbody>
                         </table>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
